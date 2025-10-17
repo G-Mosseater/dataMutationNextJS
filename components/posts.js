@@ -1,14 +1,29 @@
-'use client'
+"use client";
 import { formatDate } from "@/lib/format";
 import LikeButton from "./like-icon";
 import { togglePostLikeStatus } from "@/actions/posts";
 import { useOptimistic } from "react";
+import Image from "next/image";
 
-function Post({ post,action }) {
+function Post({ post, action }) {
+  function imageLoader(config) {
+    const urlStart = config.src.split("upload/")[0];
+    const urlEnd = config.src.split("upload/")[1];
+    const transformations = `w_200,q_${config.quality}`;
+
+    return `${urlStart}upload/${transformations}/${urlEnd}`;
+  }
   return (
     <article className="post">
       <div className="post-image">
-        <img src={post.image} alt={post.title} />
+        <Image
+          loader={imageLoader}
+          src={post.image}
+          width={200} //setting in transformation is 200
+          height={120}
+          alt={post.title}
+          quality={50}
+        />
       </div>
       <div className="post-content">
         <header>
@@ -51,7 +66,7 @@ export default function Posts({ posts }) {
       updatedPost.isLiked = !updatedPost.isLiked;
       const newPosts = [...prevPosts];
       newPosts[updatedPostIndex] = updatedPost;
-      return newPosts
+      return newPosts;
     }
   );
 
@@ -60,15 +75,15 @@ export default function Posts({ posts }) {
   }
 
   async function updatePost(postId) {
-    updatateOpstimisticPosts(postId)
-    await togglePostLikeStatus(postId)
+    updatateOpstimisticPosts(postId);
+    await togglePostLikeStatus(postId);
   }
 
   return (
     <ul className="posts">
       {optimisticPosts.map((post) => (
         <li key={post.id}>
-          <Post post={post} action={updatePost}/>
+          <Post post={post} action={updatePost} />
         </li>
       ))}
     </ul>
